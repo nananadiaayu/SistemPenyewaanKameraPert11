@@ -1,6 +1,8 @@
 package com.mycompany.sistempenyewaankamera;
 
-public abstract class Kamera {
+import java.io.Serializable;
+
+public abstract class Kamera implements Serializable {
 
     private String kode;
     private String merk;

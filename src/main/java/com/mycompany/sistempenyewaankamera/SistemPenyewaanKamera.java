@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 
 public class SistemPenyewaanKamera {
 
@@ -22,10 +29,13 @@ public class SistemPenyewaanKamera {
 
     public static void main(String[] args) {
 
+    if (!muatDataObjek()) {
         tambahDataAwal();
         tambahDataPelanggan();
+        catatLog("Program pertama kali dijalankan. Data awal kamera dan pelanggan dibuat.");
+    }
 
-        int pilihan;
+    int pilihan;
 
         do {
             System.out.println();
@@ -44,6 +54,9 @@ public class SistemPenyewaanKamera {
             System.out.println("10. Transaksi Penyewaan");
             System.out.println("11. Tampilkan Composition");
             System.out.println("12. Tampilkan Aggregation");
+            System.out.println("13. Simpan Data Objek");
+            System.out.println("14. Muat Data Objek");
+            System.out.println("15. Tampilkan Log Aktivitas");
             System.out.println("==============================================");
             System.out.print("Pilih menu: ");
 
@@ -107,6 +120,18 @@ public class SistemPenyewaanKamera {
 
                 case 12:
                     tampilkanAggregation();
+                    break;
+                    
+                case 13:
+                    simpanDataObjek();
+                    break;
+                    
+                case 14:
+                    muatDataObjek();
+                    break;
+                    
+                case 15:
+                    tampilkanLog();
                     break;
 
                 default:
@@ -830,5 +855,113 @@ public class SistemPenyewaanKamera {
                 kamera,
                 lamaSewa
         );
+    }
+    
+    static void simpanDataObjek() {
+        try {
+            FileOutputStream file = new FileOutputStream("data_rental.ser");
+            ObjectOutputStream output = new ObjectOutputStream(file);
+            
+            DataRental data = new DataRental(daftarKamera, daftarPelanggan);
+            output.writeObject(data);
+            
+            output.close();
+            file.close();
+            
+            System.out.println("Data kamera dan pelanggan berhasil disimpan.");
+            System.out.println("Nama file: data_rental.ser");
+            
+            catatLog("Data kamera dan pelanggan berhasil disimpan ke data_rental.ser.");
+            
+        } catch (IOException e) {
+            System.out.println("gagal menyimpan data: " + e.getMessage());
+        }
+    }
+    
+    static boolean muatDataObjek() {
+        File fileData = new File("data_rental.ser");
+        
+        if (!fileData.exists()) {
+            System.out.println("File data_rental.ser belum tersedia.");
+            return false;
+        }
+        
+        try {
+            FileInputStream file = new FileInputStream(fileData);
+            ObjectInputStream inputObject = new ObjectInputStream(file);
+            
+            DataRental data = (DataRental) inputObject.readObject();
+            
+            daftarKamera.clear();
+            daftarKamera.addAll(data.getDaftarKamera());
+            
+            daftarPelanggan.clear();
+            daftarPelanggan.putAll(data.getDaftarPelanggan());
+            
+            inputObject.close();
+            file.close();
+            
+            System.out.println("Data berhasil dimuat dari data rental_data.ser.");
+            System.out.println("Jumlah kamera: " + daftarKamera.size());
+            System.out.println("Jumlah pelanggan: " + daftarPelanggan.size());
+            
+            catatLog("Data kamera dan Pelanggan berhasil dimuat dari data_rental.ser.");
+            
+            return true;
+            
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Gagal memuat data: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    static void catatLog(String aktivitas) {
+        FileWriter writer = null;
+        
+        try {
+            writer = new FileWriter("log_aktivitas.txt", true);
+            writer.write(aktivitas + System.lineSeparator());
+            
+            System.out.println("Aktivitas berhasil dicatat ke log_aktivitas.txt.");
+            
+        } catch (IOException e) {
+            System.out.println("Gagal mencatat aktivitas: " + e.getMessage());
+            
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.out.println("Gagal menutup file log.");
+                }
+            }
+        }
+    }
+    
+    static void tampilkanLog() {
+        File fileLog = new File("log_aktivitas.txt");
+        
+        System.out.println("\n========== RIWAYAT AKTIVITAS ==========");
+        
+        if (!fileLog.exists()) {
+            System.out.println("File log_aktivitas.txt belum tersedia.");
+            return;
+        }
+        try {
+            Scanner pembaca = new Scanner(fileLog);
+            
+            if (!pembaca.hasNextLine()) {
+                System.out.println("File log masih kosong.");
+            }
+            
+            while (pembaca.hasNextLine()) {
+                System.out.println(pembaca.nextLine());
+            }
+            
+            pembaca.close();
+            
+        }catch (IOException e) {
+            System.out.println("Gagal membaca file log: " + e.getMessage());
+        }
     }
 }

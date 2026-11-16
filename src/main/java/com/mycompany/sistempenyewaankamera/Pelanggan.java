@@ -1,7 +1,9 @@
 
 package com.mycompany.sistempenyewaankamera;
 
-public class Pelanggan {
+import java.io.Serializable;
+
+public class Pelanggan implements Serializable {
 
     private String idPelanggan;
     private String nama;

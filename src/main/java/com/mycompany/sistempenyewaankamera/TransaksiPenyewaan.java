@@ -44,5 +44,11 @@ public class TransaksiPenyewaan {
         System.out.printf("Total Biaya      : Rp%,.0f%n", total);
 
         System.out.println("Status Kamera    : DISEWA");
+        
+        SistemPenyewaanKamera.catatLog(
+            "Transaksi berhasil. Pelanggan: " + pelanggan.getNama()
+            + ", Kamera: " + kamera.getKode()
+            + ", Lama sewa: " + lamaSewa + " hari."
+        );
     }
 }
